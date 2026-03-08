@@ -1,0 +1,6 @@
+[submodule "repos/andes"]
+	path = repos/andes
+	url = https://github.com/CURENT/andes.git
+[submodule "repos/demo"]
+	path = repos/demo
+	url = https://github.com/CURENT/demo.git
