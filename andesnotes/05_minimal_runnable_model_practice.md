@@ -1,38 +1,38 @@
-# ANDES 实操：最小可运行自定义模型（可验证方案）
+# ANDES practical operation: minimum runnable custom model (verifiable solution)
 
-> 目标：基于已学习的 `creating-models` 路线，给出一套**可直接执行、可逐步验证**的最小自定义模型实践流程。  
-> 约束：本文不编造运行结果；仅记录本机已验证事实 + 可执行命令。
-
----
-
-## 1. 目标
-
-完成一个“最小可运行自定义模型”闭环：
-1. 准备 ANDES 环境；
-2. 基于官方静态模型示例（Shunt）复制出一个自定义模型；
-3. 注册模型并执行 `andes prepare -i`；
-4. 通过命令验证“模型已被框架识别且可生成数值代码”；
-5. 给出失败排查路径。
+> Goal: Based on the learned `creating-models` route, provide a set of minimal custom model practice processes that can be directly executed and verified step by step.
+> Constraints: This article does not fabricate running results; only records verified facts + executable commands on this machine.
 
 ---
 
-## 2. 前置条件
+## 1. Goal
 
-- macOS / Linux shell
-- Python 3.10+（建议 3.11）
+Complete a "minimum runnable custom model" closed loop:
+1. Prepare the ANDES environment;
+2. Copy a custom model based on the official static model example (Shunt);
+3. Register the model and execute `andes prepare -i`;
+4. Verify that "the model has been recognized by the framework and can generate numerical code" through the command;
+5. Provide failure troubleshooting paths.
+
+---
+
+## 2. Preconditions
+
+- macOS/Linux shell
+- Python 3.10+ (3.11 recommended)
 - `git`
-- 可访问 PyPI / GitHub
+- Accessible on PyPI/GitHub
 
-建议在独立目录执行：
+It is recommended to execute in a separate directory:
 ```bash
 mkdir -p ~/work/andes-dev && cd ~/work/andes-dev
 ```
 
 ---
 
-## 3. 本机现状（已实测）
+## 3. Current status of this machine (tested)
 
-以下命令在当前机器执行过：
+The following commands have been executed on the current machine:
 
 ```bash
 which andes
@@ -40,17 +40,17 @@ andes --version
 python3 -c "import andes,sys;print(andes.__version__)"
 ```
 
-已获取到的真实结果：
-- `andes` 命令不存在（`command not found`）
-- Python 无 `andes` 模块（`ModuleNotFoundError: No module named 'andes'`）
+Real results obtained:
+- `andes` command does not exist (`command not found`)
+- Python has no `andes` module (`ModuleNotFoundError: No module named 'andes'`)
 
-结论：当前环境**未安装 ANDES**，因此下文提供“从零可执行步骤 + 验证命令”。
+Conclusion: ANDES is not installed in your current environment, so the "steps from scratch + verification commands" are provided below.
 
 ---
 
-## 4. 实操步骤（从零到可验证）
+## 4. Practical steps (from zero to verifiable)
 
-## 步骤 A：创建虚拟环境并安装 ANDES
+## Step A: Create a virtual environment and install ANDES
 
 ```bash
 cd ~/work/andes-dev
@@ -62,13 +62,13 @@ andes --version
 python -c "import andes; print(andes.__version__)"
 ```
 
-### 预期输出
-- `andes --version` 输出版本号（如 `1.x.x`）
-- Python 打印相同版本号
+### Expected output
+- `andes --version` output version number (such as `1.x.x`)
+- Python prints the same version number
 
 ---
 
-## 步骤 B：获取源码（用于自定义模型开发）
+## Step B: Obtain source code (for custom model development)
 
 ```bash
 cd ~/work/andes-dev
@@ -76,86 +76,86 @@ git clone https://github.com/CURENT/andes.git
 cd andes
 ```
 
-确认官方示例存在（避免路径猜测）：
+Confirm that official examples exist (avoid path guessing):
 ```bash
 rg -n "class Shunt" andes/models
 rg -n "creating-models|example-static|Shunt" docs -S
 ```
 
-### 预期输出
-- 至少命中 `Shunt` 类定义位置
-- docs 中能检索到静态模型示例相关页面/文字
+### Expected output
+- At least hit the `Shunt` class definition location
+- Static model example related pages/text can be retrieved in docs
 
 ---
 
-## 步骤 C：复制官方最小静态模型为自定义模型
+## Step C: Copy the official minimum static model into a custom model
 
-> 原则：先复用官方最小可行模板，再改名与注册，降低首轮失败率。
+> Principle: Reuse the official minimum viable template first, then change the name and register to reduce the first-round failure rate.
 
-1) 打开 `Shunt` 源文件（用上一步 `rg` 输出的真实路径）。  
-2) 复制为新文件，例如：
+1) Open the `Shunt` source file (use the real path output by `rg` in the previous step).
+2) Copy as a new file, for example:
 ```bash
 cp andes/models/shunt.py andes/models/shuntlite.py
 ```
-3) 在 `shuntlite.py` 内最小改动：
-- 类名改为唯一新名（如 `ShuntLiteData`, `ShuntLite`）
-- 保持方程结构与变量定义不变（首轮不要改方程）
-- 模型名/文档字符串改为新名（便于检索）
+3) Minimal changes in `shuntlite.py`:
+- Change the class name to a unique new name (such as `ShuntLiteData`, `ShuntLite`)
+- Keep the equation structure and variable definitions unchanged (don’t change the equation in the first round)
+- The model name/docstring is changed to a new name (for easier retrieval)
 
-建议改完后做静态检查：
+It is recommended to do a static check after making the changes:
 ```bash
 rg -n "class ShuntLite|ShuntLiteData" andes/models/shuntlite.py
 python -m py_compile andes/models/shuntlite.py
 ```
 
-### 预期输出
-- `rg` 能命中新类名
-- `py_compile` 无语法错误
+### Expected output
+- `rg` can hit new class names
+- `py_compile` no syntax errors
 
 ---
 
-## 步骤 D：注册模型并准备代码生成
+## Step D: Register the model and prepare for code generation
 
-1) 编辑 `andes/models/__init__.py`，把 `ShuntLite` 模块加入导入/注册列表（按文件现有风格添加）。
-2) 执行代码生成准备：
+1) Edit `andes/models/__init__.py` and add the `ShuntLite` module to the import/registration list (add it according to the existing style of the file).
+2) Prepare to perform code generation:
 ```bash
 andes prepare -i
 ```
 
-### 预期输出
-- `prepare` 过程结束且无异常退出
-- 若有缓存/生成日志，不应出现 import error / attribute error / duplicate model name
+### Expected output
+- `prepare` process ends and exits without exception
+- If there is cache/generation log, import error / attribute error / duplicate model name should not appear
 
 ---
 
-## 步骤 E：最小“可运行”验证
+## Step E: Minimal "runnable" verification
 
-### E1. 结构验证（必须）
+### E1. Structure verification (required)
 ```bash
 python - <<'PY'
 import andes
 from andes.system import System
 print('andes version:', andes.__version__)
-# 仅验证包可导入、System 可构建
+# Only verify package importability and System construction
 sys = System()
 print('system init ok')
 PY
 ```
 
-### E2. 自定义模型可发现验证（必须）
-> 使用 `rg` + import 双重验证，避免“文件存在但未注册”。
+### E2. Custom model discoverable verification (required)
+> Use `rg` + import double verification to avoid "file exists but not registered".
 
 ```bash
 rg -n "ShuntLite" andes/models/__init__.py andes/models/shuntlite.py
 python - <<'PY'
-# 若注册路径不同，请按实际路径调整 import 语句
+# If the registration path differs, adjust import statements to your local path
 from andes.models.shuntlite import ShuntLite
 print('ShuntLite import ok:', ShuntLite.__name__)
 PY
 ```
 
-### E3. 回归运行验证（建议）
-> 用官方内置 case 跑一次潮流，确认新增模型未破坏基础运行链路。
+### E3. Regression run verification (recommended)
+> Run the trend using the official built-in case to confirm that the new model does not destroy the basic operating link.
 
 ```bash
 python - <<'PY'
@@ -166,62 +166,62 @@ print('PFlow exit:', ss.PFlow.exit_code)
 PY
 ```
 
-### 预期输出
-- E1/E2 都能打印 `ok`
-- E3 输出 `PFlow exit: 0`（若样例名不同，请先 `python -c "import andes; print(andes.get_case.__doc__)"` 或检索可用 case）
+### Expected output
+- Both E1/E2 can print `ok`
+- E3 outputs `PFlow exit: 0` (if the sample names are different, please first `python -c "import andes; print(andes.get_case.__doc__)"` or retrieve available cases)
 
 ---
 
-## 5. 失败排查
+## 5. Failure troubleshooting
 
-### 问题 1：`andes: command not found`
-- 原因：未安装或未激活 venv
-- 排查：`which python && which andes`
-- 处理：重新 `source .venv/bin/activate`，再 `pip install andes`
+### Question 1: `andes: command not found`
+- Reason: venv is not installed or activated
+- Troubleshooting: `which python && which andes`
+- Solution: Re-source .venv/bin/activate`, and then `pip install andes`
 
-### 问题 2：`ModuleNotFoundError: andes`
-- 原因：解释器不是 venv 的 Python
-- 排查：`python -c "import sys; print(sys.executable)"`
-- 处理：确认路径位于 `.../.venv/bin/python`
+### Problem 2: `ModuleNotFoundError: andes`
+- Reason: The interpreter is not venv's Python
+- Troubleshooting: `python -c "import sys; print(sys.executable)"`
+- Treatment: Confirm that the path is at `.../.venv/bin/python`
 
-### 问题 3：`andes prepare -i` 报 import/注册错误
-- 常见原因：
-  - 新类名与已有模型冲突
-  - `__init__.py` 未正确注册
-  - 复制后类名与文件名不一致
-- 排查命令：
+### Question 3: `andes prepare -i` reports import/registration error
+- Common reasons:
+  - New class name conflicts with existing model
+  - `__init__.py` is not registered correctly
+  - The class name is inconsistent with the file name after copying
+- Troubleshooting commands:
 ```bash
 rg -n "ShuntLite|class .*Data|class .*\(" andes/models/shuntlite.py andes/models/__init__.py
 ```
 
-### 问题 4：回归 case 名不存在
-- 排查：
+### Problem 4: Regression case name does not exist
+- Troubleshooting:
 ```bash
 python - <<'PY'
 import andes, pkgutil
 print('andes imported ok:', andes.__version__)
 PY
 ```
-- 处理：改用本地实际存在的官方样例；先确认 `andes.get_case(...)` 可解析。
+- Solution: Use the official sample that actually exists locally; first confirm that `andes.get_case(...)` can be parsed.
 
 ---
 
-## 6. 交付标准（通过/不通过）
+## 6. Delivery Criteria (Pass/Fail)
 
-通过条件（全部满足）：
-1. `andes --version` 与 Python import 都成功；
-2. `shuntlite.py` 可编译；
-3. `andes prepare -i` 成功；
-4. `from andes.models.shuntlite import ShuntLite` 成功；
-5. 至少一个官方 case 的 `PFlow.exit_code == 0`（建议）。
+Passing conditions (all met):
+1. `andes --version` and Python import both succeed;
+2. `shuntlite.py` is compilable;
+3. `andes prepare -i` succeeded;
+4. `from andes.models.shuntlite import ShuntLite` succeeded;
+5. At least one official case of `PFlow.exit_code == 0` (recommended).
 
-不通过条件（任一触发）：
-- 任意步骤出现未定位原因的异常；
-- 仅“文件创建成功”但未完成 import/prepare 验证。
+Failure condition (any trigger):
+- An exception with unidentified cause occurs at any step;
+- Just "File created successfully" but import/prepare verification not done.
 
 ---
 
-## 7. 备注
+## 7. Remarks
 
-- 本文是“最小可运行”方案，刻意不在首轮引入新方程/离散逻辑。  
-- 下一步建议：在 `ShuntLite` 中只改**一个**可控参数（如新增倍率因子），每次改动都重复 E1~E3 验证链路。
+- This article is a "minimum runnable" solution and deliberately does not introduce new equations/discrete logic in the first round.
+- Next step suggestion: Change only one controllable parameter in `ShuntLite` (such as adding a new multiplication factor), and repeat the E1~E3 verification link for each change.

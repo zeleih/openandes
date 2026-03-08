@@ -1,24 +1,24 @@
-# ANDES 建模速查表（面向最小自定义模型）
+# ANDES Modeling Cheat Sheet (for minimal custom models)
 
-> 用途：执行/复盘“最小可运行自定义模型”时快速查命令与检查点。  
-> 原则：先跑通，再扩展；每步必须有验证命令。
-
----
-
-## 1) 目标
-
-- 在不编造结果的前提下，快速完成：环境可用 → 模型复制改名 → 注册 → prepare → import 验证 → 回归运行。
+> Purpose: Quickly check commands and checkpoints when executing/reviewing the "minimum runnable custom model".
+> Principle: run through first, then expand; each step must have a verification command.
 
 ---
 
-## 2) 前置条件
+## 1) Goal
+
+- Quickly complete without making up the results: environment available → model copy and rename → registration → prepare → import verification → regression run.
+
+---
+
+## 2) Preconditions
 
 ```bash
 python3 --version
 git --version
 ```
 
-若 ANDES 未安装：
+If ANDES is not installed:
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
@@ -30,33 +30,33 @@ python -c "import andes; print(andes.__version__)"
 
 ---
 
-## 3) 最小步骤（Checklist）
+## 3) Minimum steps (Checklist)
 
-## Step A. 找到官方最小模板
+## Step A. Find the official minimal template
 ```bash
 cd ~/work/andes-dev/andes
 rg -n "class Shunt" andes/models
 ```
 
-## Step B. 复制并改名
+## Step B. Copy and rename
 ```bash
 cp andes/models/shunt.py andes/models/shuntlite.py
-# 手动编辑类名：ShuntData/Shunt -> ShuntLiteData/ShuntLite
+# Manually rename classes: ShuntData/Shunt -> ShuntLiteData/ShuntLite
 python -m py_compile andes/models/shuntlite.py
 ```
 
-## Step C. 注册模型
+## Step C. Register model
 ```bash
-# 编辑 andes/models/__init__.py 后验证
+# Validate after editing andes/models/__init__.py
 rg -n "ShuntLite" andes/models/__init__.py andes/models/shuntlite.py
 ```
 
-## Step D. 生成/刷新数值代码
+## Step D. Generate/refresh numerical code
 ```bash
 andes prepare -i
 ```
 
-## Step E. 可运行验证
+## Step E. Runnable verification
 ```bash
 python - <<'PY'
 from andes.models.shuntlite import ShuntLite
@@ -75,45 +75,45 @@ PY
 
 ---
 
-## 4) 命令与预期输出（速查）
+## 4) Commands and expected output (quick check)
 
-- `andes --version` → 输出版本号
-- `python -m py_compile andes/models/shuntlite.py` → 无输出且退出码 0
-- `andes prepare -i` → 结束无异常
-- `from andes.models.shuntlite import ShuntLite` → 打印 `import ok`
-- `PFlow.exit_code` → 期望 `0`
+- `andes --version` → output version number
+- `python -m py_compile andes/models/shuntlite.py` → no output and exit code 0
+- `andes prepare -i` → ends without exception
+- `from andes.models.shuntlite import ShuntLite` → print `import ok`
+- `PFlow.exit_code` → expected `0`
 
 ---
 
-## 5) 常见失败排查
+## 5) Common failure troubleshooting
 
-### A. CLI 不存在
+### A. CLI does not exist
 ```bash
 which andes
 which python
 ```
-处理：激活 venv，重新安装。
+Solution: Activate venv and reinstall.
 
-### B. 模块不可导入
+### B. The module cannot be imported
 ```bash
 python -c "import sys; print(sys.executable)"
 python -c "import andes; print(andes.__version__)"
 ```
-处理：确保使用同一 venv 解释器。
+Workaround: Make sure to use the same venv interpreter.
 
-### C. prepare 失败
+### C. prepare failed
 ```bash
 rg -n "ShuntLite|class" andes/models/shuntlite.py andes/models/__init__.py
 ```
-处理：检查类名冲突、注册遗漏、拼写错误。
+Processing: Check for class name conflicts, registration omissions, and spelling errors.
 
-### D. case 路径错误
-处理：改用本地可解析的官方 case，再验证 `PFlow.exit_code`。
+### D. case path error
+Solution: Use the local parsable official case instead, and then verify `PFlow.exit_code`.
 
 ---
 
-## 6) 扩展建议（通过最小方案后）
+## 6) Extension suggestions (after passing the minimum solution)
 
-1. 每次只引入一个新改动（参数/方程/离散逻辑三选一）；
-2. 每次改动都重复：`py_compile -> prepare -> import -> PFlow`；
-3. 记录失败日志与修复动作，形成个人建模回归清单。
+1. Only introduce one new change at a time (choose one of three parameters/equations/discrete logic);
+2. Repeat for each change: `py_compile -> prepare -> import -> PFlow`;
+3. Record failure logs and repair actions to form a personal modeling regression list.

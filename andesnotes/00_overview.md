@@ -1,38 +1,38 @@
-# ANDES 学习笔记 - 总览
+#ANDES Study Notes - Overview
 
-来源：`https://docs.andes.app/en/latest/`（首页）
+Source: `https://docs.andes.app/en/latest/` (Homepage)
 
-## 项目定位
-- ANDES 是开源 Python 电力系统建模与数值分析库。
-- 核心能力：
-  - 潮流计算（Power Flow）
-  - 时域仿真/暂态稳定（Time-domain Simulation）
-  - 小扰动稳定（Eigenvalue Analysis）
-  - 符号-数值混合框架（用于快速模型原型开发）
-  - 支持第二代新能源模型
+## Project positioning
+- ANDES is an open source Python power system modeling and numerical analysis library.
+- Core competencies:
+  - Power Flow
+  - Time-domain Simulation/Transient Stability (Time-domain Simulation)
+  - Small perturbation stability (Eigenvalue Analysis)
+  - Symbolic-numeric hybrid framework (for rapid model prototyping)
+  - Support second generation new energy model
 
-## 文档结构（主导航）
+## Document structure (main navigation)
 - Tutorials
 - Modeling Guide
 - Reference
 - Verification
-- About ANDES
+- ABOUT ANDES
 
-## 关键入口
+## Key entrance
 - PDF Manual: `https://docs.andes.app/_/downloads/en/stable/pdf/`
 - GitHub: `https://github.com/CURENT/andes`
 - PyPI: `https://pypi.org/project/andes/`
 
-## 快速安装
+## Quick installation
 - conda: `conda install -c conda-forge andes`
 
-## 快速示例
+## Quick example
 - `andes.load(andes.get_case('ieee14/ieee14_fault.xlsx'))`
 - `ss.PFlow.run()`
 - `ss.TDS.run()`
 - `ss.TDS.plt.plot(ss.GENROU.omega)`
 
-## Learning Paths（首页给出的路径）
+## Learning Paths (the path given on the home page)
 - New User:
   - Installation
   - First Simulation
@@ -46,6 +46,6 @@
   - Hybrid Symbolic-Numeric Framework
   - Creating Models
 
-## 我的理解
-- ANDES 文档是典型 Sphinx 技术文档，路径清晰，适合按“用户角色”分层学习。
-- 对我当前任务（细读手册）而言，最重要的是：Tutorials + Modeling Guide + Reference。
+## My understanding
+- ANDES documents are typical Sphinx technical documents with clear paths and are suitable for hierarchical learning based on "user roles".
+- The most important for my current task (perusing the manual) is: Tutorials + Modeling Guide + Reference.

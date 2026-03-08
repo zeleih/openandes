@@ -1,6 +1,6 @@
-# ANDES 学习笔记 - Modeling Concepts & Variables 深读
+# ANDES Study Notes - Modeling Concepts & Variables Deep Reading
 
-来源：
+source:
 - `modeling/concepts/framework-overview.html`
 - `modeling/concepts/dae-formulation.html`
 - `modeling/components/variables.html`
@@ -9,102 +9,102 @@
 
 ## A. Hybrid Symbolic-Numeric Framework
 
-### 核心思想
-- 不直接手写数值求解代码，而是先用符号表达模型方程与组件。
-- 框架自动完成：
-  1) 解析方程字符串
-  2) 自动偏导（雅可比）
-  3) 代码生成与优化
-  4) 向量化执行
+### Core Idea
+- Instead of directly handwriting numerical solution code, you first express the model equations and components symbolically.
+- The framework autocompletes:
+  1) Analyze equation string
+  2) Automatic deflection (Jacobian)
+  3) Code generation and optimization
+  4) vectorized execution
 
-### 对开发者的价值
-- 写“物理方程”而非“求导与矩阵组装”细节。
-- 复用控制块（Lag/LeadLag/PI等）。
-- 通过统一框架减少模型实现错误。
+### Value to developers
+- Write "physical equations" rather than "derivatives and matrix assembly" details.
+- Reuse control blocks (Lag/LeadLag/PI, etc.).
+- Reduce model implementation errors through a unified framework.
 
-### 对用户的价值
-- 参数与常见工具（如 PSS/E）更易对齐。
-- 运行效率来自预生成代码（`~/.andes/pycode/`）。
-- 扩展模型时不需要改核心求解器。
+### Value to users
+- Parameters are easier to align with common tools such as PSS/E.
+- Running efficiency comes from pre-generated code (`~/.andes/pycode/`).
+- There is no need to change the core solver when extending the model.
 
-### 代码生成机制
-- 命令：`andes prepare`
-- 生成内容：方程求值函数、雅可比构建、初始化例程、索引映射。
-- 只在模型变更后重生成，平时复用缓存。
+### Code generation mechanism
+- Command: `andes prepare`
+- Generated content: equation evaluation functions, Jacobian construction, initialization routines, index maps.
+- It will only be regenerated after the model is changed, and the cache will be reused at ordinary times.
 
 ---
 
 ## B. DAE Formulation
 
-### 数学形式
-- 微分部分：`M xdot = f(x, y)`
-- 代数部分：`0 = g(x, y)`
+### Mathematical form
+- Differential part: `M xdot = f(x, y)`
+- Algebraic part: `0 = g(x, y)`
 
-其中：
-- `x`：状态变量（连续演化）
-- `y`：代数变量（瞬时约束）
-- `M`：质量矩阵（常为对角）
+in:
+- `x`: state variable (continuous evolution)
+- `y`: algebraic variable (instantaneous constraint)
+- `M`: mass matrix (usually diagonal)
 
-### 潮流 vs 暂态
-- 潮流：令导数为零，变成纯代数方程，NR 求解。
-- 暂态：时间离散（隐式梯形），每步转化为非线性代数方程迭代。
+### Trend vs Transient
+- Power flow: Let the derivative be zero and it becomes a purely algebraic equation, solved by NR.
+- Transient: time discrete (implicit trapezoidal), each step is transformed into an iteration of nonlinear algebraic equations.
 
-### 雅可比分块
+### Jacobi block
 - `fx = df/dx`, `fy = df/dy`, `gx = dg/dx`, `gy = dg/dy`
-- 框架自动构建，不需手工推导。
+- The framework is automatically constructed without manual derivation.
 
-### 方程书写约定（很关键）
-- `State`：`e_str` 写右端 `f(...)`，左侧系数用 `t_const` 提供。
-- `Algeb`：必须写成残差为零的隐式形式（例如 `x + z - y`），不能写成仅右端表达式，否则雅可比可能奇异。
+### Equation writing convention (very important)
+- `State`: `e_str` writes the right-hand side `f(...)`, and the left-hand coefficient is provided as `t_const`.
+- `Algeb`: must be written as an implicit form with zero residuals (e.g. `x + z - y`), not as a right-hand-side-only expression, otherwise the Jacobian may be singular.
 
-### 初始化方式
-- 显式：`v_str`
-- 隐式：`v_iter`（迭代求初值）
+### Initialization method
+- Explicit: `v_str`
+- Implicit: `v_iter` (iterate to find initial value)
 
-### 不连续处理
-- 用离散组件（Limiter 等）导出状态标志（如在限/越上限/越下限），再在 `e_str` 中分段拼接。
+### Discontinuous processing
+- Use discrete components (Limiter, etc.) to export status flags (such as at the limit/over the upper limit/over the lower limit), and then splice them into sections in `e_str`.
 
-### 小扰动线性化
-- 在平衡点线性化得到状态矩阵 `As`，其特征值决定稳定性。
-
----
-
-## C. Variables 组件（建模最基础对象）
-
-### 基础语义
-- 变量是未知量容器，同时带：
-  - `v`：变量值
-  - `e`：方程残差值
-  - `a`：在 DAE 向量中的地址（0-based）
-
-### 迭代中的职责分离
-- `v` 由求解器更新（模型不应随意直接改）。
-- `e` 由模型方程更新，汇总后供求解器迭代。
-
-### 主要类型
-- `State`：微分状态
-- `Algeb`：代数变量
-- `ExtState` / `ExtAlgeb`：跨模型引用外部变量
-- `AliasState` / `AliasAlgeb`：别名映射
-
-### State 要点
-- 连续动态变量；时间常数/质量系数通过 `t_const` 注入 `dae.Tf`。
-- 典型：转子角、转速、控制器状态。
-
-### Algeb 要点
-- 瞬时约束变量；方程需隐式残差写法。
-- 典型：母线电压、功率平衡、电流注入。
-
-### External 变量要点
-- 用于模型耦合（例如装置访问 Bus.v）。
-- 通过 `model + src + indexer` 建立映射，避免手动索引硬编码。
+### Small perturbation linearization
+- Linearization at the equilibrium point yields the state matrix `As`, whose eigenvalues ​​determine stability.
 
 ---
 
-## 阶段总结
-- ANDES 的建模精髓是：
-  **方程声明（symbolic） + 自动微分 + 自动代码生成 + 数值求解**。
-- 对稳定开发最关键的 3 条纪律：
-  1) `Algeb.e_str` 必须是“=0”的残差形式；
-  2) `State` 的左侧系数放 `t_const`，不要混进 `e_str`；
-  3) 跨模型耦合优先 `ExtVar` 族，不做手写地址耦合。
+## C. Variables component (the most basic object for modeling)
+
+### Basic semantics
+- A variable is a container of unknown quantities and also contains:
+  - `v`: variable value
+  - `e`: equation residual value
+  - `a`: address in DAE vector (0-based)
+
+### Separation of duties in iteration
+- `v` is updated by the solver (the model should not be changed directly).
+- `e` is updated from the model equations and summarized for solver iterations.
+
+### Main types
+- `State`: Differential state
+- `Algeb`: algebraic variables
+- `ExtState` / `ExtAlgeb`: referencing external variables across models
+- `AliasState` / `AliasAlgeb`: Alias ​​mapping
+
+### State Key Points
+- Continuous dynamic variables; time constants/mass coefficients are injected into `dae.Tf` via `t_const`.
+- Typical: rotor angle, speed, controller status.
+
+### Algeb Key Points
+- Instantaneous constraint variables; equations require implicit residual writing.
+- Typical: bus voltage, power balancing, current injection.
+
+### External variable key points
+- Used for model coupling (e.g. device access to Bus.v).
+- Establish mapping through `model + src + indexer` to avoid manual index hardcoding.
+
+---
+
+## Stage summary
+- The essence of ANDES modeling is:
+  **Equation declaration (symbolic) + automatic differentiation + automatic code generation + numerical solution**.
+- The three most critical disciplines for stable development:
+  1) `Algeb.e_str` must be the residual form of "=0";
+  2) Put `t_const` on the left side coefficient of `State`, do not mix in `e_str`;
+  3) Cross-model coupling gives priority to the `ExtVar` family, and no handwritten address coupling is done.

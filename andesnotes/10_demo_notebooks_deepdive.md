@@ -1,18 +1,18 @@
 # 10_demo_notebooks_deepdive
 
-更新时间：2026-03-08 01:44 (Asia/Shanghai)
+Update time: 2026-03-08 01:44 (Asia/Shanghai)
 
-## 1) 盘点结果（可验证）
-- 扫描路径：`andesnotes/repos/demo/demo/**/*.ipynb`
-- notebook 数量：**55**
-- kernelspec：抽样均为 `python3`
+## 1) Inventory results (verifiable)
+- Scan path: `andesnotes/repos/demo/demo/**/*.ipynb`
+- Number of notebooks: **55**
+- kernelspec: samples are all `python3`
 
-## 2) 依赖分层（按 import）
+## 2) Dependency layering (by import)
 
-### A. ANDES主线（优先执行）
-典型特征：`import andes`（常伴随 `matplotlib`）
+### A. ANDES main line (executed first)
+Typical features: `import andes` (often accompanied by `matplotlib`)
 
-代表文件：
+Representative documents:
 - `demo/forced_oscillation/forced_oscillation.ipynb`
 - `demo/oscillation/oscillation.ipynb`
 - `demo/interface_andes/interface_andes.ipynb`
@@ -20,44 +20,44 @@
 - `demo/misc/alter_load.ipynb`
 - `demo/misc/voltage_sag.ipynb`
 
-观察到的代码模式（来自 notebook 代码单元）：
+Observed code pattern (from notebook code unit):
 - `case = andes.get_case('kundur/kundur_full.xlsx')`
 - `andes.load(..., pert='./pert.py')`
 - `!andes misc --version`
 
-### B. AMS扩展线（后置）
-典型特征：`import ams`
+### B. AMS extension cable (rear)
+Typical features: `import ams`
 
-代表文件：
+Representative documents:
 - `demo/ams_benchmark/opf/bench_opf.ipynb`
 - `demo/ams_benchmark/opf/bench_opf_repeat.ipynb`
 - `demo/ams_benchmark/opf/bench_educ.ipynb`
 - `demo/ams_benchmark/UCCase/*.ipynb`
 
-观察到的代码模式：
+Observed code patterns:
 - `import ams`
 - `%run ../benchmarks.py`
-- 多求解器对比（GUROBI/MOSEK/PIQP/pandapower）
+- Comparison of multiple solvers (GUROBI/MOSEK/PIQP/pandapower)
 
-## 3) 与README对齐情况
-- `demo/README.md` 的导航与目录结构一致（Advanced Usage / Simulations / Benchmark / Debug）。
-- `demo/ams_benchmark/README.md` 明确 benchmark 环境与工具版本说明。
+## 3) Alignment with README
+- The navigation of `demo/README.md` is consistent with the directory structure (Advanced Usage / Simulations / Benchmark / Debug).
+- `demo/ams_benchmark/README.md` clearly explains the benchmark environment and tool version.
 
-## 4) 当前可复现性判断
+## 4) Current reproducibility judgment
 
-### 已实测通过（环境侧）
-- 已在 `andes` 仓库创建 venv 并完成 `andes` editable 安装。
-- 在该 venv 中检测：`andes` 可导入，`ams` 不可导入（`find_spec('ams') == False`）。
+### Passed the actual test (environmental side)
+- A venv has been created in the `andes` repository and the `andes` editable installation has been completed.
+- Check in this venv that: `andes` is importable, `ams` is not importable (`find_spec('ams') == False`).
 
-### 待执行（notebook侧）
-- 尚未逐个执行 demo notebooks（本轮仅完成结构与代码单元验证）。
-- AMS线 notebooks 待依赖补齐后执行。
+### To be executed (notebook side)
+- The demo notebooks have not been executed one by one yet (only structure and code unit verification has been completed in this round).
+- AMS line notebooks will be executed after dependencies are completed.
 
-## 5) 推荐执行顺序（最小风险）
+## 5) Recommended execution order (minimum risk)
 1. `forced_oscillation` → 2) `oscillation` → 3) `interface_andes`
-2. 再跑 `misc/*` 中单案例 notebook
-3. 最后进入 `ams_benchmark/*`
+2. Then run `misc/*` mid lane case notebook
+3. Finally enter `ams_benchmark/*`
 
-## 6) 已识别风险点
-- `andes demo` 子命令当前会抛出 `NotImplementedError: Demos have not been implemented`，不作为 notebook 入口。
-- 部分案例路径名容易误写（如 `ieee14.xlsx` 在当前仓库并不存在）。
+## 6) Risk points identified
+- The `andes demo` subcommand currently throws `NotImplementedError: Demos have not been implemented` and is not used as a notebook entry.
+- In some cases, the path name is easily written incorrectly (for example, `ieee14.xlsx` does not exist in the current warehouse).

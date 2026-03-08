@@ -1,53 +1,53 @@
-# ANDES 学习笔记 - Verification & About
+# ANDES Study Notes - Verification & About
 
-来源：
+source:
 - `verification/index.html`
 - `about.html`
 
 ## Verification
 
-### 验证目标
-- 与商业软件比对，验证模型与算法正确性（时域仿真结果）。
+### Verification target
+- Compare with commercial software to verify the correctness of the model and algorithm (time domain simulation results).
 
-### 对标对象
+### Target object
 - PSS/E
 - TSAT
-- 已发表基准数据
+- Published benchmark data
 
-### 典型系统
-- IEEE 14-bus：结果高度一致
-- NPCC：多区域多模型系统，对商业工具比对
-- WECC：大系统含新能源，存在轻微差异（多工具在大系统下本就难完全一致）
+### Typical system
+- IEEE 14-bus: highly consistent results
+- NPCC: Multi-region multi-model system, comparison of commercial tools
+- WECC: A large system contains new energy, and there are slight differences (it is difficult for multiple tools to be completely consistent in a large system)
 
-### 比对方法
-- 参数一致
-- 扰动一致
-- 时间步尽量可比
-- 比对变量：转子角、转速、母线电压
+### Comparison method
+- Parameters consistent
+- perturbation consistent
+- Time steps should be as comparable as possible
+- Comparison variables: rotor angle, speed, bus voltage
 
 ## About
 
-### 项目定位
-- ANDES 是 CURENT Large Scale Testbed 的动态仿真引擎之一。
+### Project positioning
+- ANDES is one of the dynamic simulation engines of CURENT Large Scale Testbed.
 
-### 核心技术
-- 符号-数值混合框架：
-  - Python + SymPy 写模型
-  - 自动生成优化后的数值代码
-  - 代码缓存复用（符号开销不是每次都付）
+### Core Technology
+- Symbolic-numeric hybrid framework:
+  - Python + SymPy writing model
+  - Automatically generate optimized numerical code
+  - Code cache reuse (symbol overhead is not paid every time)
 
-### 能力宣称（文档给出）
-- 覆盖传统机组控制模型 + 新能源二代模型（含 WECC 规范）
-- 支持 PSS/E raw/dyr 直接解析
-- 大系统仿真性能可在桌面机达到秒级（文档示例口径）
+### Capability declaration (given in the document)
+- Covers traditional unit control model + second-generation new energy model (including WECC specification)
+- Support PSS/E raw/dyr direct analysis
+- Large system simulation performance can reach second level on desktop computers (document example caliber)
 
-### 引用
+### Quote
 - H. Cui, F. Li, K. Tomsovic, IEEE TPWRS 2021, DOI: 10.1109/TPWRS.2020.3017019
 
-### 许可
+### License
 - GPL v3
 
-## 我的理解
-- ANDES 的“可信度”来自两条线：
-  1) 可解释的符号建模流程
-  2) 与商业工具和标准测试系统的系统性对比
+## My understanding
+- ANDES's "credibility" comes from two lines:
+  1) Interpretable symbolic modeling process
+  2) Systematic comparison with commercial tools and standard test systems

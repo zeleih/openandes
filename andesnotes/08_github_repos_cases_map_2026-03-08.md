@@ -1,48 +1,48 @@
-# ANDES GitHub + Demo 仓库学习记录（2026-03-08）
+# ANDES GitHub + Demo warehouse learning record (2026-03-08)
 
-## 1) 仓库同步
-- ANDES 源码仓库：`andesnotes/repos/andes`
-- Demo 仓库：`andesnotes/repos/demo`
+## 1) Warehouse synchronization
+- ANDES source code repository: `andesnotes/repos/andes`
+- Demo repository: `andesnotes/repos/demo`
 
-## 2) Case / Demo 资源盘点（重点）
+## 2) Case / Demo resource inventory (key points)
 
-### ANDES 内置 case（`andes/andes/cases`）
-- 典型系统：`ieee14`, `ieee39`, `kundur`, `wecc`, `npcc`, `wscc9`, `nordic44`, `GBnetwork`, `matpower`, `5bus`, `smib` 等。
-- 文件形态：`.xlsx`, `.json`, `.raw`, `.dyr`, `.m` 等混合。
-- `ieee14` 子目录含大量控制器/扰动/故障示例（如 `fault`, `linetrip`, `gentrip`, `pllvfu1`, `esst*`, `hygov*`）。
+### ANDES built-in case (`andes/andes/cases`)
+- Typical systems: `ieee14`, `ieee39`, `kundur`, `wecc`, `npcc`, `wscc9`, `nordic44`, `GBnetwork`, `matpower`, `5bus`, `smib`, etc.
+- File form: `.xlsx`, `.json`, `.raw`, `.dyr`, `.m`, etc. mixed.
+- The `ieee14` subdirectory contains a large number of controller/disturbance/fault examples (e.g. `fault`, `linetrip`, `gentrip`, `pllvfu1`, `esst*`, `hygov*`).
 
-### demo 仓库（`demo/demo/*`）
-- 仿真类：`forced_oscillation`, `oscillation`, `freq_response`, `TGOV1`, `TurbineGov_response`, `bus_current_injection`, `andes_stochastic`
-- 系统级：`texas7k`, `hawaii`, `rolling_horizon`
-- 调试与技巧：`misc`（含 `output_select`, `alter_load`, `voltage_sag`, `andes_tds_init`, `busfreq` 等）
-- benchmark：`pflow_benchmark`
+### demo warehouse (`demo/demo/*`)
+- Simulation classes: `forced_oscillation`, `oscillation`, `freq_response`, `TGOV1`, `TurbineGov_response`, `bus_current_injection`, `andes_stochastic`
+- System level: `texas7k`, `hawaii`, `rolling_horizon`
+- Debugging and skills: `misc` (including `output_select`, `alter_load`, `voltage_sag`, `andes_tds_init`, `busfreq`, etc.)
+- benchmark: `pflow_benchmark`
 
-## 3) 运行环境安装与实测
+## 3) Operating environment installation and actual testing
 
-### 环境
-- `/.venv-andes`（Python 3.14）已装 ANDES，但运行 case 出现兼容性问题。
-- 新建 `/.venv-andes312`（Python 3.12.13）并安装 ANDES 1.10.0。
+### environment
+- `/.venv-andes` (Python 3.14) ANDES is installed, but there are compatibility issues when running case.
+- Create new `/.venv-andes312` (Python 3.12.13) and install ANDES 1.10.0.
 
-### 关键命令与结果
-1. 版本检查
+### Key commands and results
+1. version check
 - `andes misc --version` ✅
-- 说明：`andes --version` 不是有效参数。
+- Explanation: `andes --version` is not a valid argument.
 
-2. 数值代码生成
+2. Numerical code generation
 - `andes prepare -q` ✅
-- 生成路径：`~/.andes/pycode`
+- Generation path: `~/.andes/pycode`
 
-3. 基础 case 验证
-- Python API：`andes.load(andes.get_case('ieee14/ieee14.json')); ss.PFlow.run()` ✅ `PFlow converged True`
+3. Basic case verification
+- Python API: `andes.load(andes.get_case('ieee14/ieee14.json')); ss.PFlow.run()` ✅ `PFlow converged True`
 
-4. demo case 验证
-- 命令：
+4. demo case verification
+- Order:
   `andes run .../demo/TGOV1/ieee39_TGOV1.xlsx -r pflow`
-- 结果：NR 5 次迭代收敛，输出 `ieee39_TGOV1_out.txt` ✅
+- Result: NR converges after 5 iterations, output `ieee39_TGOV1_out.txt` ✅
 
-## 4) 当前学习结论
-- GitHub 仓库中的“案例学习路径”已可落地执行（可跑通内置 case 与 demo case 的 PFlow）。
-- 后续重点：
-  1) 逐个学习 demo 的 notebook 结构（输入、扰动脚本、输出分析）；
-  2) 把 `TGOV1 / forced_oscillation / freq_response` 做成可复现实操笔记；
-  3) 在 ANDES 主仓库中对照 `cases` 与文档章节建立“章节-样例映射表”。
+## 4) Current learning conclusion
+- The "case learning path" in the GitHub repository can be implemented (PFlow can run through the built-in case and demo case).
+- Follow-up highlights:
+  1) Learn the notebook structure of the demo one by one (input, perturbation script, output analysis);
+  2) Make `TGOV1 / forced_oscillation / freq_response` into reproducible practice notes;
+  3) Establish a "chapter-example mapping table" in the ANDES main repository by comparing `cases` and document chapters.
