@@ -1,12 +1,110 @@
-# 02b modeling concepts components deepdive
+# ANDES 学习笔记 - Modeling Concepts & Variables 深读
 
-## Purpose
-This note summarizes learning outcomes related to ANDES modeling, simulation workflows, or verification practices.
+来源：
+- `modeling/concepts/framework-overview.html`
+- `modeling/concepts/dae-formulation.html`
+- `modeling/components/variables.html`
 
-## Scope
-- Concepts reviewed
-- Practical commands and reproducible steps
-- Pitfalls and debugging observations
+---
 
-## Current Status
-This file has been normalized to English-only text for publication readiness in the open repository.
+## A. Hybrid Symbolic-Numeric Framework
+
+### 核心思想
+- 不直接手写数值求解代码，而是先用符号表达模型方程与组件。
+- 框架自动完成：
+  1) 解析方程字符串
+  2) 自动偏导（雅可比）
+  3) 代码生成与优化
+  4) 向量化执行
+
+### 对开发者的价值
+- 写“物理方程”而非“求导与矩阵组装”细节。
+- 复用控制块（Lag/LeadLag/PI等）。
+- 通过统一框架减少模型实现错误。
+
+### 对用户的价值
+- 参数与常见工具（如 PSS/E）更易对齐。
+- 运行效率来自预生成代码（`~/.andes/pycode/`）。
+- 扩展模型时不需要改核心求解器。
+
+### 代码生成机制
+- 命令：`andes prepare`
+- 生成内容：方程求值函数、雅可比构建、初始化例程、索引映射。
+- 只在模型变更后重生成，平时复用缓存。
+
+---
+
+## B. DAE Formulation
+
+### 数学形式
+- 微分部分：`M xdot = f(x, y)`
+- 代数部分：`0 = g(x, y)`
+
+其中：
+- `x`：状态变量（连续演化）
+- `y`：代数变量（瞬时约束）
+- `M`：质量矩阵（常为对角）
+
+### 潮流 vs 暂态
+- 潮流：令导数为零，变成纯代数方程，NR 求解。
+- 暂态：时间离散（隐式梯形），每步转化为非线性代数方程迭代。
+
+### 雅可比分块
+- `fx = df/dx`, `fy = df/dy`, `gx = dg/dx`, `gy = dg/dy`
+- 框架自动构建，不需手工推导。
+
+### 方程书写约定（很关键）
+- `State`：`e_str` 写右端 `f(...)`，左侧系数用 `t_const` 提供。
+- `Algeb`：必须写成残差为零的隐式形式（例如 `x + z - y`），不能写成仅右端表达式，否则雅可比可能奇异。
+
+### 初始化方式
+- 显式：`v_str`
+- 隐式：`v_iter`（迭代求初值）
+
+### 不连续处理
+- 用离散组件（Limiter 等）导出状态标志（如在限/越上限/越下限），再在 `e_str` 中分段拼接。
+
+### 小扰动线性化
+- 在平衡点线性化得到状态矩阵 `As`，其特征值决定稳定性。
+
+---
+
+## C. Variables 组件（建模最基础对象）
+
+### 基础语义
+- 变量是未知量容器，同时带：
+  - `v`：变量值
+  - `e`：方程残差值
+  - `a`：在 DAE 向量中的地址（0-based）
+
+### 迭代中的职责分离
+- `v` 由求解器更新（模型不应随意直接改）。
+- `e` 由模型方程更新，汇总后供求解器迭代。
+
+### 主要类型
+- `State`：微分状态
+- `Algeb`：代数变量
+- `ExtState` / `ExtAlgeb`：跨模型引用外部变量
+- `AliasState` / `AliasAlgeb`：别名映射
+
+### State 要点
+- 连续动态变量；时间常数/质量系数通过 `t_const` 注入 `dae.Tf`。
+- 典型：转子角、转速、控制器状态。
+
+### Algeb 要点
+- 瞬时约束变量；方程需隐式残差写法。
+- 典型：母线电压、功率平衡、电流注入。
+
+### External 变量要点
+- 用于模型耦合（例如装置访问 Bus.v）。
+- 通过 `model + src + indexer` 建立映射，避免手动索引硬编码。
+
+---
+
+## 阶段总结
+- ANDES 的建模精髓是：
+  **方程声明（symbolic） + 自动微分 + 自动代码生成 + 数值求解**。
+- 对稳定开发最关键的 3 条纪律：
+  1) `Algeb.e_str` 必须是“=0”的残差形式；
+  2) `State` 的左侧系数放 `t_const`，不要混进 `e_str`；
+  3) 跨模型耦合优先 `ExtVar` 族，不做手写地址耦合。
