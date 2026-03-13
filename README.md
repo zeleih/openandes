@@ -36,3 +36,6 @@ This enables a mobile-first control loop: request, run, debug, and receive resul
 ## Notes
 - Python environments are intentionally excluded from this repository.
 - External repositories are references to official upstream sources.
+
+If you need to know openclaw from the beginning，check this doc below:
+https://my.feishu.cn/wiki/H27Iw9ussiaYbokymhncExtjnAh?from=from_copylink
