@@ -13,7 +13,9 @@ Included artifacts:
   summary statistics for that `h13d2` comparison
 - `h5_pair_boundary_checks/`
   two dispatch-boundary continuity checks for `h5d1 -> h5d2`, including
-  cold-stitched vs memory hot-start and cold-stitched vs continuous 1800 s
+  cold-stitched vs memory hot-start and cold-stitched vs continuous 1800 s;
+  the committed figures are the first `h5` experiment with `KP=0.03`,
+  `KI=0.01`
 
 The full working study directories used during development are intentionally not
 checked in here.

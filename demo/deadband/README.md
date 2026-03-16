@@ -178,12 +178,14 @@ To isolate that effect, this repo now includes two additive validation scripts:
   runs the two dispatch intervals as one 1800-second continuous simulation and
   compares that trace against the cold-stitched baseline.
 
-Using the current default AGC settings (`agc_interval=4 s`, `KP=0.05`,
-`KI=0.0625`, `init_mode=first`), the published `h5d1 -> h5d2` check shows:
+The published figures in this subsection intentionally use the first
+`h5d1 -> h5d2` continuity experiment, where the AGC was lighter
+(`agc_interval=4 s`, `KP=0.03`, `KI=0.01`, `init_mode=first`) so the boundary
+artifact is easier to see. Under that setup, the published check shows:
 
-- cold-stitched boundary jump: `-0.00620 Hz`
+- cold-stitched boundary jump: `-0.04010 Hz`
 - memory hot-start boundary jump: `0.00000 Hz`
-- continuous `899 s -> 900 s` step: `-0.01295 Hz`
+- continuous `899 s -> 900 s` step: `-0.01292 Hz`
 
 These results show that the cold-stitched zero reset is a workflow artifact,
 while the continuous run preserves the actual dynamic step between dispatches.
@@ -208,23 +210,27 @@ python scripts/compare_dispatch_pair_hotstart.py \
   --second-dispatch-json results/generated/h5_pair/h5d2_dispatch.json \
   --first-cold-csv results/generated/h5_pair/h5d1_frequency.csv \
   --second-cold-csv results/generated/h5_pair/h5d2_frequency.csv \
+  --kp 0.03 \
+  --ki 0.01 \
   --results-dir results/generated/h5_pair \
-  --label h5d1_h5d2_default_statehot
+  --label h5d1_h5d2_kp003_ki001_statehot
 
 python scripts/run_dispatch_pair_continuous.py \
   --first-dispatch-json results/generated/h5_pair/h5d1_dispatch.json \
   --second-dispatch-json results/generated/h5_pair/h5d2_dispatch.json \
   --first-cold-csv results/generated/h5_pair/h5d1_frequency.csv \
   --second-cold-csv results/generated/h5_pair/h5d2_frequency.csv \
+  --kp 0.03 \
+  --ki 0.01 \
   --results-dir results/generated/h5_pair \
-  --label h5d1_h5d2_default_continuous
+  --label h5d1_h5d2_continuous_1800s_kp003_ki001
 ```
 
 Published figures:
 
-![h5 hot-start vs cold](results/published/h5_pair_boundary_checks/h5d1_h5d2_default_statehot_hotstart_vs_cold.png)
+![h5 hot-start vs cold](results/published/h5_pair_boundary_checks/h5d1_h5d2_kp003_ki001_statehot_hotstart_vs_cold.png)
 
-![h5 continuous vs stitched](results/published/h5_pair_boundary_checks/h5d1_h5d2_default_continuous_vs_stitched.png)
+![h5 continuous vs stitched](results/published/h5_pair_boundary_checks/h5d1_h5d2_continuous_vs_stitched_kp003_ki001.png)
 
 ## Notes
 
